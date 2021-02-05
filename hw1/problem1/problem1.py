@@ -42,8 +42,23 @@ def mix(num,w,cov,mu,d):
     z2 = z2[np.arange(num), i]
     z = np.vstack((z1, z2))
     return z
-####test 
+####test1
+a=categorical([1,2,3,4,5],[0.1,0.1,0.3,0.3,0.2],1000)
+plt.hist(a,bins=5)
+plt.show()
+####test2
+b=unigau(0,1,1000)
+plt.hist(b,bins=30)
+plt.show()
+###test3
+c=multigau([1,1],[[1,0.5],[0.5,1]],1000,2)
+plt.scatter(c[0],c[1])
+plt.show()
+####test4
 cov=np.array([[1.,0.],[0.,1.]])
 cov=[cov,cov,cov,cov]
 mu=[[1.,1.],[1.,-1.],[-1.,1.],[-1.,-1.]]
-mix(10,[0.25,0.25,0.25,0.25],cov,mu,[2,2,2,2])
+d=mix(1000,[0.25,0.25,0.25,0.25],cov,mu,[2,2,2,2])
+plt.scatter(d[0],d[1])
+plt.show()
+p=sum((np.power((d[0] - 0.1), 2) * np.power((d[1] - 0.2), 2))<=1)/1000
