@@ -88,7 +88,7 @@ class RegularizedLinearRegressor_Multi:
         # Implement this method. Store the predicted outputs in y_pred.           #
         #  1 line of code expected                                                #
         ###########################################################################
-
+        y_pred = np.matmul(X, self.theta)
 
         ###########################################################################
         #                           END OF YOUR CODE                              #
@@ -132,8 +132,12 @@ class RegularizedLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         # Calculate J (loss) wrt to X,y, and theta.                               #
         #  2 lines of code expected                                               #
         ###########################################################################
-
-
+        
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis = 1) - y
+        penal = reg * np.sum(np.square(theta[1:])) /(2.*num_examples) 
+        # Calucate the penalty term
+        J = (np.sum(np.square(diff)))/(2.* num_examples) + penal
+        
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -149,8 +153,10 @@ class RegularizedLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         # Calculate gradient of loss function wrt to X,y, and theta.              #
         #  3 lines of code expected                                               #
         ###########################################################################
-
-
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
+        # when j equals to 0 and [1,N] parameters are different
+        theta_j = [0, theta[1:]]
+        grad = (np.matmul(diff, X) + reg*(np.hstack(theta_j)))/num_examples 
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -179,9 +185,14 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         # Calculate J (loss) wrt to X,y, and theta.                               #
         #  2 lines of code expected                                               #
         ###########################################################################
-        
-
-
+        '''
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
+        # Calucate the penalty term
+        penal = reg * (np.sum(np.square(theta[1:])))/(2*num_examples) 
+        j = np.sum(np.square(diff)) + penal
+        '''
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
+        J = (np.sum(np.square(diff)) + reg * (np.sum(np.square(theta[1:]))))/(2. * num_examples)
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -197,9 +208,13 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         # Calculate gradient of loss function wrt to X,y, and theta.              #
         #  3 lines of code expected                                               #
         ###########################################################################
-
-
-
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
+        grad = (np.matmul(diff, X) + reg*(np.hstack([0, theta[1:]])))/num_examples
+        '''
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
+        theta_j = [0] + theta[1:]
+        grad = (np.matmul(diff, X) + reg*(np.hstack(theta_j)))/num_examples 
+        '''
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
