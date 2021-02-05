@@ -17,7 +17,10 @@ def feature_normalize(X):
     ########################################################################
     # TODO: modify the three lines below to return the correct values
     ########################################################################
-    
+    mu = np.average(X, axis = 0)
+    sigma = np.std(X, axis = 0)
+    m = X.shape[0]
+    X_norm = np.divide(X-np.tile(mu, (m,1)), np.tile(sigma, (m,1)))
     
   
     ########################################################################
