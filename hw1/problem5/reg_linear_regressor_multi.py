@@ -208,11 +208,6 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         ###########################################################################
         diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
         grad = (np.matmul(diff, X) + reg*(np.hstack([0, np.sign(theta[1:])])))/num_examples
-        '''
-        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
-        theta_j = [0] + theta[1:]
-        grad = (np.matmul(diff, X) + reg*(np.hstack(theta_j)))/num_examples 
-        '''
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
