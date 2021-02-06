@@ -23,15 +23,12 @@ class RegularizedLinearRegressor_Multi:
         Outputs:
         optimal value for theta
         """
-    
         num_train,dim = X.shape
         theta = np.ones((dim,))
 
 
         # Run scipy's fmin algorithm to run the gradient descent
         theta_opt = scipy.optimize.fmin_bfgs(self.loss, theta, fprime = self.grad_loss, args=(X,y,reg),maxiter=num_iters)
-            
-        
         return theta_opt
 
     def loss(self, *args):
@@ -123,7 +120,6 @@ class RegularizedLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
 
     def loss (self,*args):
         theta,X,y,reg = args
-
         num_examples,dim = X.shape
         J = 0
         grad = np.zeros((dim,))
@@ -190,9 +186,11 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         # Calucate the penalty term
         penal = reg * (np.sum(np.square(theta[1:])))/(2*num_examples) 
         j = np.sum(np.square(diff)) + penal
-        '''
-        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
-        J = (np.sum(np.square(diff)) + reg * (np.sum(np.square(theta[1:]))))/(2. * num_examples)
+        '''      
+        diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis = 1) - y
+        penal = reg * np.sum(np.abs(theta[1:])) /(2.*num_examples) 
+        # Calucate the penalty term
+        J = (np.sum(np.square(diff)))/(2.* num_examples) + penal
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -209,7 +207,7 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         #  3 lines of code expected                                               #
         ###########################################################################
         diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
-        grad = (np.matmul(diff, X) + reg*(np.hstack([0, theta[1:]])))/num_examples
+        grad = (np.matmul(diff, X) + reg*(np.hstack([0, np.sign(theta[1:])])))/num_examples
         '''
         diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis=1) - y
         theta_j = [0] + theta[1:]

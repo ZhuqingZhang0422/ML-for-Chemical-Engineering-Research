@@ -136,14 +136,17 @@ def averaged_learning_curve(X,y,Xval,yval,reg):
       ran_train = list(range(0, num_examples))
       ran_val = list(range(0, Xval.shape[0]))
       for idx in range(repeat):
+        # shuffle training subset 
         random.shuffle(ran_train)
+        # shuffle validation set
         random.shuffle(ran_val)
         reglinear_reg = RegularizedLinearReg_SquaredLoss()
+        # cal theta through gradiant descent
         theta = reglinear_reg.train(X[ran_train[:num_train+1]],y[ran_train[:num_train+1]],reg=reg,num_iters=1000)
         error_train[num_train] += reglinear_reg.loss(theta,X[ran_train[:num_train+1]],y[ran_train[:num_train+1]],0.0)
         error_val[num_train] += reglinear_reg.loss(theta,Xval[ran_val[:max(num_train+1,X.shape[0])]],yval[ran_val[:max(num_train+1,X.shape[0])]],0.0)
-      error_train[num_train] /= repeat 
-      error_val[num_train] /=repeat
+        error_train[num_train] /= repeat 
+        error_val[num_train] /=repeat
 
 
     ###########################################################################
