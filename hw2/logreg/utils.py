@@ -18,7 +18,7 @@ def sigmoid (z):
   
     sig = np.zeros(z.shape)
     # Your code here
-    
+    sig = 1/ (1+ np.exp(-z))
     # End your code
 
     return sig
@@ -45,7 +45,7 @@ def log_features(X):
 ######################################################################################
 
 def std_features(X):
-    mu = np.np.mean(X,axis=0)
+    mu = np.mean(X,axis=0)
     sigma = np.std(X,axis=0)
     X_norm = (X - mu) / sigma
     return X_norm, mu, sigma

@@ -188,7 +188,7 @@ class LassoLinearReg_SquaredLoss(RegularizedLinearRegressor_Multi):
         j = np.sum(np.square(diff)) + penal
         '''      
         diff = np.sum(np.tile(np.array(theta).T, (num_examples,1)) * X, axis = 1) - y
-        penal = reg * np.sum(np.abs(theta[1:])) /(2.*num_examples) 
+        penal = reg * np.sum(np.abs(theta[1:])) /(num_examples) 
         # Calucate the penalty term
         J = (np.sum(np.square(diff)))/(2.* num_examples) + penal
         ###########################################################################

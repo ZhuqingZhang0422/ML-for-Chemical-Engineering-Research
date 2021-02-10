@@ -71,7 +71,9 @@ class LogisticRegressor:
         # Compute the loss function for unregularized logistic regression        #
         # TODO: 1-2 lines of code expected                                       #
         ##########################################################################
-                
+       
+        z = np.matmul(X,theta)
+        J = 1/m * np.sum(-np.matmul(y,np.log(utils.sigmoid(z))) - np.matmul((1-y),np.log(1-utils.sigmoid(z))))
 
 
         ###########################################################################
@@ -99,8 +101,7 @@ class LogisticRegressor:
         # regression                                                             #
         # TODO: 1 line of code expected                                          #
         ##########################################################################
-       
-
+        grad = 1/m * np.matmul(X.T,utils.sigmoid(np.matmul(X,theta))-y)
 
         ###########################################################################
         #                           END OF YOUR CODE                              #
@@ -127,8 +128,7 @@ class LogisticRegressor:
         # TODO: 1 line of code expected                                           #
         ###########################################################################
          
-
-
+        y_pred = utils.sigmoid(np.matmul(X,self.theta))
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -212,8 +212,9 @@ class RegLogisticRegressor:
         # Compute the loss function for regularized logistic regression          #
         # TODO: 1-2 lines of code expected                                       #
         ##########################################################################
-
-
+        
+        z = np.matmul(X,theta)
+        J = 1/m * np.sum(-np.matmul(y,np.log(utils.sigmoid(z))) - np.matmul((1-y),np.log(1-utils.sigmoid(z)))) + reg/m/2*np.sum(np.square(theta[1:]))
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -241,8 +242,8 @@ class RegLogisticRegressor:
         # regression                                                             #
         # TODO: 2 lines of code expected                                          #
         ##########################################################################
-
-
+        penal_arr = np.hstack([[0],theta[1:]])
+        grad = 1/m * np.matmul(X.T,utils.sigmoid(np.matmul(X,theta))-y) + reg/m*penal_arr
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -268,8 +269,9 @@ class RegLogisticRegressor:
         # TODO: 1 line of code expected                                           #
         #                                                                         #
         ###########################################################################
-
-
+        y_pred = utils.sigmoid(np.matmul(X,self.theta))
+        map_func = lambda x : 1 if x >0.5 else 0
+        y_pred = np.array([map_func(x) for x in y_pred])
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
