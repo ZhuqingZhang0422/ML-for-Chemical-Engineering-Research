@@ -32,8 +32,12 @@ class one_vs_allLogisticRegressor:
         # TODO: 7-9 lines of code expected                                        # 
         # use C=1.0/reg, solver is sag and max_iter = 1000                        #    
         ###########################################################################
-
-
+        K = len(self.labels)
+        for i in range(K):
+            y_split = np.array([int(x == i) for x in y]) 
+            lg = linear_model.LogisticRegression(C=1.0/reg,penalty='l2',fit_intercept=False,solver='lbfgs')
+            lg.fit(X,y_split)
+            theta_opt[:,i] = lg.coef_[0]            
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
@@ -58,7 +62,6 @@ class one_vs_allLogisticRegressor:
         # Compute the predicted outputs for X                                     #
         # TODO: 1-2 lines of code expected                                        #
         ###########################################################################
-
 
         ###########################################################################
         #                           END OF YOUR CODE                              #
