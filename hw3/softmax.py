@@ -27,7 +27,24 @@ def softmax_loss_naive(theta, X, y, reg):
     # careful here, it is easy to run into numeric instability. Don't forget    #
     # the regularization term!                                                  #
     #############################################################################
-
+    panel, soft = 0, 0 
+    K = theta.shape[1]
+    # calculate the penalty term
+    for j in range(dim):
+        for k in range(K):
+            panel += theta[j][k]**2
+    panel *= reg/2/m
+    
+    # calculate soft term
+    for i in range(m):
+        for k in range(K):
+            if y[i] == k:
+                top = np.exp((theta[:,k].T).dot(X[i]))
+                vec = np.exp(np.matmul(X[i],theta)-max(np.matmul(X[i],theta)))
+                S = np.exp(np.matmul(X[i],theta)-max(np.matmul(X[i],theta))).sum(axis = 0)
+                bot = (vec/S).sum(axis = 0)
+                    
+       
 
     #############################################################################
     #                          END OF YOUR CODE                                 #
