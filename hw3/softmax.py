@@ -82,13 +82,13 @@ def softmax_loss_vectorized(theta, X, y, reg):
     soft, panel = 0, 0
     
     # calculate the panel term
-    panel = reg*np.square(theta).sum(axis = 1).sum(axis = 0)/2.0/m
+    panel = reg/2/m*np.square(theta).sum(axis = 1).sum(axis = 0)
     
     # calculate the soft term
+    m = int(X.shape[0])
     I = np.zeros((m,K))
-    for i in range(m):
-        I[i,y[i]] = 1
-    soft = -(np.multiply(I,np.log(p))/m).sum(axis = 1).sum(axis = 0)
+    I[range(0,m), y.astype(int)] = 1
+    soft = -(np.multiply(I,np.log(p))).sum(axis = 1).sum(axis = 0)/m
     J = panel + soft
     grad = -np.matmul(X.T,(I-p))/m + reg*theta/m 
     #############################################################################
