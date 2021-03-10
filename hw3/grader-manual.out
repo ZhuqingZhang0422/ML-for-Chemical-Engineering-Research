@@ -1,0 +1,26 @@
+parts:
+- maxPoints: 5
+  messages:
+  - '?'
+  name: '7.6'
+  points: '?'
+- maxPoints: 5
+  messages:
+  - '?'
+  name: '7.7'
+  points: '?'
+- maxPoints: 10
+  messages:
+  - '?'
+  name: '7.8'
+  points: '?'
+- maxPoints: 5
+  messages:
+  - '?'
+  name: '7.9'
+  points: '?'
+- maxPoints: 10
+  messages:
+  - '?'
+  name: '7.10'
+  points: '?'
