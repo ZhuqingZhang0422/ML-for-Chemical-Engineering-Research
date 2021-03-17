@@ -53,7 +53,7 @@ class LinearClassifier(object):
       # perform parameter update
       self.theta = self.theta - learning_rate * grad
 
-      if verbose and it % 100 == 0:
+      if verbose and it % 10000 == 0:
         print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
     return loss_history
