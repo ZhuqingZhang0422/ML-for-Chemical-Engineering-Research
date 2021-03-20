@@ -77,19 +77,27 @@ def svm_loss_naive(theta, X, y, C):
   # 8-10 lines of code expected                                               #
   #############################################################################
   
-
-
+  for i in range(m):
+    # calculate the reference
+    cor = np.dot(theta[:,y[i]],X[i,:])
+    for j in range(K):
+        if j != y[i]:
+            diff = delta + np.dot(theta[:,j],X[i,:]) - cor
+            if diff > 0:
+                J += diff
+                dtheta[:,j] += X[i,:]
+                dtheta[:,y[i]] -= X[i,:]
+  J = J/m + np.square(theta).sum(axis = 1).sum(axis = 0)*C/2/m
+  dtheta = theta/m*C + dtheta/m
+  
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dtheta.            #
   # Rather that first computing the loss and then computing the derivative,   #
   # it may be simpler to compute the derivative at the same time that the     #
-  # loss is being computed. As a result you may need to modify some of the    #
+  # loss is being computed. As a result you may neßed to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-  
-
-
   return J, dtheta
 
 
@@ -113,12 +121,25 @@ def svm_loss_vectorized(theta, X, y, C):
   # 8-10 lines of code                                                        #
   #############################################################################
   
-
-
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
+  scores = np.dot(X, theta) # also known as f(x_i, W)
 
+  correct_scores = np.ones(scores.shape).T * scores[np.arange(0, scores.shape[0]),y]
+  deltas = np.ones(scores.shape)
+  L = scores - correct_scores.T + deltas
+
+  L[L < 0] = 0
+  L[np.arange(0, scores.shape[0]),y] = 0 # Don't count y_i
+  J = np.sum(L)
+
+  # Average over number of training examples
+  num_train = X.shape[0]
+  J /= num_train
+
+  # Add regularization
+  J += 0.5 * C * np.sum(theta * theta)
 
   #############################################################################
   # TODO:                                                                     #
@@ -129,9 +150,19 @@ def svm_loss_vectorized(theta, X, y, C):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  
+  grad = np.zeros(scores.shape)
 
+  L = scores - correct_scores.T + deltas
 
+  L[L < 0] = 0
+  L[L > 0] = 1
+  L[np.arange(0, scores.shape[0]), y] = 0  # Don't count y_i
+  L[np.arange(0, scores.shape[0]), y] = -1 * np.sum(L, axis=1 )
+  dtheta = np.dot( X.T,L)
+
+  # Average over number of training examples
+  num_train = X.shape[0]
+  dtheta /= num_train
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
