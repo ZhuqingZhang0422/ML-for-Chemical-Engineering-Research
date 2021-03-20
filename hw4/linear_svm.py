@@ -43,7 +43,7 @@ def binary_svm_loss(theta, X, y, C):
 
 # SVM multiclass
 
-def svm_loss_naive(theta, X, y, C):
+def svm_loss_naive(theta, X, y, reg):
   #"""
   #Structured SVM loss function, naive implementation (with loops).
 
@@ -76,7 +76,23 @@ def svm_loss_naive(theta, X, y, C):
   # code above to compute the gradient.                                       #
   # 8-10 lines of code expected                                               #
   #############################################################################
-  
+  for i in xrange(m):
+    h = np.dot(X[i,:], theta)
+    hy = h[y[i]]
+    for j in xrange(K):
+      if j == y[i]:
+        continue
+      l = h[j] - hy + delta
+      if l > 0:
+        J += l
+        dtheta[:, j] += X[i, :]
+        dtheta[:, y[i]] -= X[i, :]
+
+  J /= m
+  dtheta /= m
+  J += 0.5 * reg * np.sum(theta * theta)
+  dtheta += reg * theta
+  '''
   for i in range(m):
     # calculate the reference
     cor = np.dot(theta[:,y[i]],X[i,:])
@@ -89,7 +105,7 @@ def svm_loss_naive(theta, X, y, C):
                 dtheta[:,y[i]] -= X[i,:]
   J = J/m + np.square(theta).sum(axis = 1).sum(axis = 0)*C/2/m
   dtheta = theta/m*C + dtheta/m
-  
+  ''' 
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dtheta.            #
@@ -120,7 +136,19 @@ def svm_loss_vectorized(theta, X, y, C):
   # result in variable J.                                                     #
   # 8-10 lines of code                                                        #
   #############################################################################
-  
+  K = theta.shape[1] # number of classes
+  m = X.shape[0]     # number of examples
+
+  h = np.dot(X, theta)
+  hy = np.choose(y, h.T).reshape(-1, 1)
+  l = h - hy + delta
+  margins = np.maximum(l, 0.0)
+  margins[np.arange(m), y] = 0.0
+
+  J = np.sum(margins)
+  J /= m
+  J += 0.5 * reg * np.sum(theta * theta)
+    
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
