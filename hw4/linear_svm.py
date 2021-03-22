@@ -86,8 +86,8 @@ def svm_loss_naive(theta, X, y, C):
                 J += diff
                 dtheta[:,j] += X[i,:]
                 dtheta[:,y[i]] -= X[i,:]
-  J = J/m + np.square(theta).sum(axis = 1).sum(axis = 0)*C/2/m
-  dtheta = theta/m*C + dtheta/m
+  J = J/m*C + np.square(theta).sum(axis = 1).sum(axis = 0)/2/m
+  dtheta = theta/m + C*dtheta/m
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dtheta.            #
@@ -125,7 +125,7 @@ def svm_loss_vectorized(theta, X, y, C):
   hh[hh!=0] += delta
   l = np.maximum(0, hh)
   # add panely term
-  J = np.sum(np.square(theta))/2/m*C + np.sum(l)/m
+  J = np.sum(np.square(theta))/2/m + np.sum(l)/m*C
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -142,7 +142,7 @@ def svm_loss_vectorized(theta, X, y, C):
   # pick up the term which are predicted wrong
   wr_pred = (hh >0).astype(int)
   wr_pred[range(len(y)),y] = -(np.sum(wr_pred, axis=1))  
-  dtheta = C*theta/m + np.matmul(X.T, wr_pred)/m
+  dtheta = theta/m + np.matmul(X.T, wr_pred)/m*C
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
