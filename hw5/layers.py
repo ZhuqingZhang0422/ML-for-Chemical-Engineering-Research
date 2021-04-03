@@ -25,7 +25,8 @@ def affine_forward(x, theta, theta0):
   # will need to reshape the input into rows.                                 #
   #############################################################################
   # 2 lines of code expected
-  pass
+  X_reshape = x.reshape(x.shape[0],np.prod(x.shape[1:]))
+  out = np.matmul(X_reshape,theta) + theta0
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
