@@ -48,7 +48,7 @@ class TwoLayerNet(object):
     # theta2 shape is (hidden_dim,num_classes), theta2_0 shape is (num_classes,)#
     ############################################################################
     # 4 lines of code expected
-    pass
+    self.params['theta1'] = np.random.normal(loc
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
