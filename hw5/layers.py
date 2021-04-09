@@ -226,7 +226,22 @@ def conv_forward_naive(x, theta, theta0, conv_param):
   # TODO: Implement the convolutional forward pass.                           #
   # Hint: you can use the function np.pad for padding.                        #
   #############################################################################
-  pass
+  m, C, H, W = x.shape
+  F, _, HH, WW = theta.shape
+  
+  pad = conv_param['pad']
+  stride = conv_param['stride']
+
+  npad = ((0,0),(0,0),(pad,pad),(pad,pad))
+  x_pad = np.pad(x, npad, 'constant', constant_values=0)
+  out = np.zeros((m, F, 1 + (H + 2 * pad - HH) // stride, 1 + (W + 2 * pad - WW) // stride))
+
+  for mm in range(m):
+    for FF in range(F):
+      for h in range(1 + (H + 2 * pad - HH) // stride):
+        for w in range(1 + (W + 2 * pad - WW) // stride):
+          out[mm,FF,h,w] = np.sum(x_pad[mm, :, h*stride :h*stride+HH, w*stride: w*stride+WW] * theta[FF])+theta0[FF]
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -251,7 +266,28 @@ def conv_backward_naive(dout, cache):
   #############################################################################
   # TODO: Implement the convolutional backward pass.                          #
   #############################################################################
-  pass
+  x, theta, theta0, conv_param = cache
+  m, C, H, W = x.shape
+  F, _, HH, WW = theta.shape
+
+  pad = conv_param['pad']
+  stride = conv_param['stride']
+
+  npad = ((0,0),(0,0),(pad,pad),(pad,pad))
+  x_pad = np.pad(x, npad, 'constant', constant_values=0)
+  out = np.zeros((m, F, 1 + (H + 2 * pad - HH) // stride, 1 + (W + 2 * pad - WW) // stride))
+ 
+  dx = np.zeros(x_pad.shape)
+  dtheta = np.zeros(theta.shape)
+  dtheta0 = np.sum(np.sum(np.sum(dout, axis=3), axis=2), axis=0)
+
+  for mm in range(m):
+    for FF in range(F):
+      for h in range (int(1 + (H + 2 * pad - HH) / stride)):
+        for w in range(int(1 + (W + 2 * pad - WW) / stride)):
+          dx[mm,:,h*stride:h*stride+HH, w*stride:w*stride+WW] += dout[mm,FF,h,w]*theta[FF]
+          dtheta[FF,:,:,:] += dout[mm,FF,h,w]*x_pad[mm, :, h*stride:h*stride+HH, w*stride:w*stride+WW]
+            
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -277,7 +313,21 @@ def max_pool_forward_naive(x, pool_param):
   #############################################################################
   # TODO: Implement the max pooling forward pass                              #
   #############################################################################
-  pass
+  m, F, H, W = x.shape
+  max_H = pool_param['pool_height']
+  max_W = pool_param['pool_width']
+  S = pool_param['stride']
+
+  HH = 1 + (H - max_H)//S
+  WW = 1 + (W - max_W)//S
+
+  out = np.zeros((m, F, HH, WW))
+  for mm in range(m):
+    for FF in range(F):
+      for h in range(HH):
+        for w in range(WW):
+          out[mm,FF,h,w] = np.max(x[mm, FF, h*S:h*S+max_H, w*S:w*S+max_W])
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -300,7 +350,35 @@ def max_pool_backward_naive(dout, cache):
   #############################################################################
   # TODO: Implement the max pooling backward pass                             #
   #############################################################################
-  pass
+  x, theta, theta0, conv_param = cache
+  m, C, H, W = x.shape
+  F, _, HH, WW = theta.shape
+  pad = conv_param['pad']
+  stride = conv_param['stride']
+
+  npad = ((0,0),(0,0),(pad,pad),(pad,pad))
+  x_pad = np.pad(x, npad, 'constant', constant_values=0)
+  out = np.zeros((m, F, 1 + (H + 2 * pad - HH) / stride, 1 + (W + 2 * pad - WW) / stride))
+  # print dout.shape
+  # print out.shape  
+
+  dx = np.zeros(x_pad.shape)
+  dtheta = np.zeros(theta.shape)
+  dtheta0 = np.sum(np.sum(np.sum(dout, axis=3), axis=2), axis=0)
+
+  for mm in range(m):
+    for FF in range(F):
+      for HHH in range(1 + (H + 2 * pad - HH) / stride):
+        for WWW in range(1 + (W + 2 * pad - WW) / stride):
+          # print '==================='
+          # print dx[mm,:,HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW].shape
+          # print theta[FF].shape
+          dx[mm,:,HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW] += dout[mm,FF,HHH,WWW]*theta[FF]
+          # print '==================='
+          # print dtheta[FF,:,:,:].shape
+          # print x_pad[mm, :, HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW].shape
+          # print '==================='
+          dtheta[FF,:,:,:] += dout[mm,FF,HHH,WWW]*x_pad[mm, :, HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW]
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
