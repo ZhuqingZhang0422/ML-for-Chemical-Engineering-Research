@@ -269,25 +269,29 @@ def conv_backward_naive(dout, cache):
   x, theta, theta0, conv_param = cache
   m, C, H, W = x.shape
   F, _, HH, WW = theta.shape
-
   pad = conv_param['pad']
   stride = conv_param['stride']
 
   npad = ((0,0),(0,0),(pad,pad),(pad,pad))
   x_pad = np.pad(x, npad, 'constant', constant_values=0)
-  out = np.zeros((m, F, 1 + (H + 2 * pad - HH) // stride, 1 + (W + 2 * pad - WW) // stride))
- 
+    
+  A = 1 + (H + 2 * pad - HH) // stride
+  B = 1 + (W + 2 * pad - WW) // stride
+    
+  out = np.zeros((m, F, A, B))
   dx = np.zeros(x_pad.shape)
   dtheta = np.zeros(theta.shape)
   dtheta0 = np.sum(np.sum(np.sum(dout, axis=3), axis=2), axis=0)
 
   for mm in range(m):
     for FF in range(F):
-      for h in range (int(1 + (H + 2 * pad - HH) / stride)):
-        for w in range(int(1 + (W + 2 * pad - WW) / stride)):
-          dx[mm,:,h*stride:h*stride+HH, w*stride:w*stride+WW] += dout[mm,FF,h,w]*theta[FF]
-          dtheta[FF,:,:,:] += dout[mm,FF,h,w]*x_pad[mm, :, h*stride:h*stride+HH, w*stride:w*stride+WW]
+      for h in range(A):
+        for w in range(B):
+          dx[mm,:,h*stride : h*stride+HH, w*stride : w*stride+WW] += dout[mm,FF,h,w]*theta[FF]
+          dtheta[FF,:,:,:] += dout[mm,FF,h,w]*x_pad[mm, :, h*stride:h*stride+HH, w*stride : w*stride+WW]
             
+  dx = dx[:,:,pad:-pad, pad:-pad]
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -350,35 +354,21 @@ def max_pool_backward_naive(dout, cache):
   #############################################################################
   # TODO: Implement the max pooling backward pass                             #
   #############################################################################
-  x, theta, theta0, conv_param = cache
-  m, C, H, W = x.shape
-  F, _, HH, WW = theta.shape
-  pad = conv_param['pad']
-  stride = conv_param['stride']
+  m, F, H, W = cache[0].shape
+  max_H = cache[1]['pool_height']
+  max_W = cache[1]['pool_width']
+  S = cache[1]['stride']
+  HH = 1 + (H - max_H) // S
+  WW = 1 + (W - max_W) // S
 
-  npad = ((0,0),(0,0),(pad,pad),(pad,pad))
-  x_pad = np.pad(x, npad, 'constant', constant_values=0)
-  out = np.zeros((m, F, 1 + (H + 2 * pad - HH) / stride, 1 + (W + 2 * pad - WW) / stride))
-  # print dout.shape
-  # print out.shape  
-
-  dx = np.zeros(x_pad.shape)
-  dtheta = np.zeros(theta.shape)
-  dtheta0 = np.sum(np.sum(np.sum(dout, axis=3), axis=2), axis=0)
-
+  dx = np.zeros((m, F, H, W))
   for mm in range(m):
     for FF in range(F):
-      for HHH in range(1 + (H + 2 * pad - HH) / stride):
-        for WWW in range(1 + (W + 2 * pad - WW) / stride):
-          # print '==================='
-          # print dx[mm,:,HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW].shape
-          # print theta[FF].shape
-          dx[mm,:,HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW] += dout[mm,FF,HHH,WWW]*theta[FF]
-          # print '==================='
-          # print dtheta[FF,:,:,:].shape
-          # print x_pad[mm, :, HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW].shape
-          # print '==================='
-          dtheta[FF,:,:,:] += dout[mm,FF,HHH,WWW]*x_pad[mm, :, HHH*stride:HHH*stride+HH, WWW*stride:WWW*stride+WW]
+      for h in range(HH):
+        for w in range(WW):
+          sub_matrix = cache[0][mm, FF, h*S: h*S+max_H, w*S : w*S+max_W]
+          coordinate = np.unravel_index(sub_matrix.argmax(), sub_matrix.shape)
+          dx[mm, FF, h*S+coordinate[0], w*S+coordinate[1]] = dout[mm,FF,h,w]
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -404,12 +394,12 @@ def svm_loss(x, y):
   correct_class_scores = x[np.arange(m), y]
   margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1.0)
   margins[np.arange(m), y] = 0
-  loss = np.sum(margins) / m
+  loss = np.sum(margins) // m
   num_pos = np.sum(margins > 0, axis=1)
   dx = np.zeros_like(x)
   dx[margins > 0] = 1
   dx[np.arange(m), y] -= num_pos
-  dx /= m
+  dx //= m
   return loss, dx
 
 
@@ -428,10 +418,10 @@ def softmax_loss(x, y):
   - dx: Gradient of the loss with respect to x
   """
   probs = np.exp(x - np.max(x, axis=1, keepdims=True))
-  probs /= np.sum(probs, axis=1, keepdims=True)
+  probs //= np.sum(probs, axis=1, keepdims=True)
   m = x.shape[0]
-  loss = -np.sum(np.log(probs[np.arange(m), y])) / m
+  loss = -np.sum(np.log(probs[np.arange(m), y])) // m
   dx = probs.copy()
   dx[np.arange(m), y] -= 1
-  dx /= m
+  dx //= m
   return loss, dx
