@@ -394,12 +394,12 @@ def svm_loss(x, y):
   correct_class_scores = x[np.arange(m), y]
   margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1.0)
   margins[np.arange(m), y] = 0
-  loss = np.sum(margins) // m
+  loss = np.sum(margins) / m
   num_pos = np.sum(margins > 0, axis=1)
   dx = np.zeros_like(x)
   dx[margins > 0] = 1
   dx[np.arange(m), y] -= num_pos
-  dx //= m
+  dx /= m
   return loss, dx
 
 
@@ -418,10 +418,10 @@ def softmax_loss(x, y):
   - dx: Gradient of the loss with respect to x
   """
   probs = np.exp(x - np.max(x, axis=1, keepdims=True))
-  probs //= np.sum(probs, axis=1, keepdims=True)
+  probs /= np.sum(probs, axis=1, keepdims=True)
   m = x.shape[0]
-  loss = -np.sum(np.log(probs[np.arange(m), y])) // m
+  loss = -np.sum(np.log(probs[np.arange(m), y])) / m
   dx = probs.copy()
   dx[np.arange(m), y] -= 1
-  dx //= m
+  dx /= m
   return loss, dx

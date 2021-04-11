@@ -48,6 +48,7 @@ class ThreeLayerConvNet(object):
     # 'theta3_0' for the weights and biases of the output affine layer.        #
     ############################################################################
     # about 12 lines of code
+    
     conv_stride, conv_pad = 1, (filter_size - 1) // 2
     pool_height, pool_width, pool_stride = 2, 2, 2
 
@@ -67,7 +68,8 @@ class ThreeLayerConvNet(object):
     self.params['theta2_0'] = np.zeros((hidden_dim, ), dtype=dtype)
     self.params['theta3'] = np.random.normal(loc=0.0, scale=weight_scale, size=(hidden_dim, num_classes)).astype(dtype)
     self.params['theta3_0'] = np.zeros((num_classes, ), dtype=dtype)
-    pass
+    
+    
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -119,8 +121,8 @@ class ThreeLayerConvNet(object):
     ############################################################################
     # about 12 lines of code
     loss, dx = softmax_loss(scores, y)
-    reg_term = sum([np.sum(v**2) for k, v in self.params.items()])
-    loss += self.reg * reg_term // 2
+    reg_term = sum([np.sum(v**2) for k, v in self.params.items()])/2
+    loss += self.reg * reg_term 
 
     dx, dtheta, dtheta0 = affine_backward(dx, cache3)
     grads['theta3'] = dtheta + self.reg * self.params['theta3']
