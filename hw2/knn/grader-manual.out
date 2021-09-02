@@ -1,6 +1,0 @@
-parts:
-- maxPoints: 5
-  messages:
-  - '?'
-  name: '3.5'
-  points: '?'
